@@ -1,15 +1,8 @@
-import './App.css'
+import React from "react";
+import BasePage from "./pages/BasePage";
 
-function App() {
-  return (
-    <>
-      <div>
-       -----------------------exo-one------------------------
-      </div>
-      
-    
-    </>
-  )
-}
+const App: React.FC = () => {
+  return <BasePage />;
+};
 
-export default App
+export default App;
