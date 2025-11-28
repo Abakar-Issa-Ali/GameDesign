@@ -1,4 +1,5 @@
 import React from "react";
+// @ts-ignore: Missing type declarations for Colors.js
 import colors from "../style/Colors";
 
 const BasePage: React.FC = () => {
