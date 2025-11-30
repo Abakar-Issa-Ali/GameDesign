@@ -3,39 +3,10 @@ import colors from "../style/Colors";
 
 const BasePage: React.FC = () => {
   return (
-    <div className="flex h-screen w-screen bg-background-main text-text-primary font-rajdhani">
-      {/* === Sidebar === */}
-      <aside className="w-56 bg-background-sidebar flex flex-col justify-between p-5">
-        <div>
-          <h1 className="text-text-accent font-bold text-xl mb-1">EXO-ONE</h1>
-          <p className="text-xs text-text-secondary">Système Phaos - Sol 45</p>
-
-          <nav className="flex flex-col gap-2 mt-5">
-            {["Base", "Recherche", "Colons", "Missions", "Carte"].map(
-              (item, i) => (
-                <button
-                  key={i}
-                  className={`text-left text-[15px] py-2 px-3 rounded-md transition ${
-                    item === "Base"
-                      ? "bg-sidebar-active text-white"
-                      : "text-text-secondary hover:bg-text-accent hover:text-white"
-                  }`}
-                >
-                  {item}
-                </button>
-              )
-            )}
-          </nav>
-        </div>
-
-        <div className="text-sm text-text-secondary cursor-pointer">
-          Paramètres
-        </div>
-      </aside>
-
-      {/* === Main Content === */}
-      <main className="flex-1 flex flex-col p-4 bg-background-main">
-        {/* Resource bar */}
+    <div className="flex h-full">
+      {/* === Contenu principal (centre) === */}
+      <div className="flex flex-col flex-1 p-4">
+        {/* === Resource bar === */}
         <div className="flex justify-between gap-2 mb-4">
           {[
             ["⚡ Énergie", colors.resources.energy],
@@ -47,14 +18,17 @@ const BasePage: React.FC = () => {
             <div
               key={i}
               className="flex-1 text-center py-2 rounded-md border border-background-grid font-semibold"
-              style={{ backgroundColor: colors.background.panel, color }}
+              style={{
+                backgroundColor: colors.background.panel,
+                color,
+              }}
             >
               {label}
             </div>
           ))}
         </div>
 
-        {/* Grid zone */}
+        {/* === Grille centrale === */}
         <div
           className="flex-1 rounded-lg border border-background-grid"
           style={{
@@ -66,13 +40,14 @@ const BasePage: React.FC = () => {
             backgroundSize: "40px 40px",
           }}
         ></div>
-      </main>
+      </div>
 
-      {/* === Right panel === */}
-      <aside className="w-64 bg-background-panel p-5 flex flex-col gap-3">
+      {/* === Sidebar de droite : Construction === */}
+      <aside className="w-64 bg-background-panel p-5 flex flex-col gap-3 border-l border-background-grid">
         <h2 className="text-text-accent font-semibold text-lg">
           + Construction
         </h2>
+
         {[
           "Panneau solaire",
           "Foreuse minière",
