@@ -1,95 +1,124 @@
-import React from "react";
-// @ts-ignore: Missing type declarations for Colors.js
-import colors from "../style/Colors";
+import React, { useState } from 'react';
+import { useGameState } from '../hooks/useGameState';
+import Sidebar from '../components/Sidebar';
+import ResourcePanel from '../components/ResourcePanel';
+import GameGrid from '../components/GameGrid';
+import BuildMenu from '../components/BuildMenu';
+import BuildingInfoPanel from '../components/BuildingInfoPanel';
 
 const BasePage: React.FC = () => {
+  const {
+    gameState,
+    isPaused,
+    setIsPaused,
+    buildBuilding,
+    removeBuilding,
+    upgradeBuilding,
+    toggleBuilding,
+    resetGame,
+    resourceDelta,
+  } = useGameState();
+
+  const [selectedBuildingId, setSelectedBuildingId] = useState<string | null>(null);
+  const [selectedBuildingType, setSelectedBuildingType] = useState<string | null>(null);
+
+  const handlePlaceBuilding = (position: { x: number; y: number }) => {
+    if (!selectedBuildingType) return;
+
+    const success = buildBuilding(selectedBuildingType, position);
+    if (success) {
+      // Déselectionner après placement
+      setSelectedBuildingType(null);
+    }
+  };
+
+  const handleSelectBuildingFromMenu = (type: string) => {
+    setSelectedBuildingType(selectedBuildingType === type ? null : type);
+    setSelectedBuildingId(null); // Déselectionner le bâtiment existant
+  };
+
+  const handleSelectBuildingOnGrid = (buildingId: string | null) => {
+    setSelectedBuildingId(buildingId);
+    setSelectedBuildingType(null); // Déselectionner le type de construction
+  };
+
+  const handleUpgrade = () => {
+    if (selectedBuildingId) {
+      upgradeBuilding(selectedBuildingId);
+    }
+  };
+
+  const handleToggle = () => {
+    if (selectedBuildingId) {
+      toggleBuilding(selectedBuildingId);
+    }
+  };
+
+  const handleRemove = () => {
+    if (selectedBuildingId) {
+      removeBuilding(selectedBuildingId);
+      setSelectedBuildingId(null);
+    }
+  };
+
+  const handleReset = () => {
+    if (confirm('Êtes-vous sûr de vouloir recommencer ? Toute progression sera perdue.')) {
+      resetGame();
+      setSelectedBuildingId(null);
+      setSelectedBuildingType(null);
+    }
+  };
+
+  const selectedBuilding = gameState.buildings.find((b) => b.id === selectedBuildingId) || null;
+
   return (
-    <div className="flex h-screen w-screen bg-background-main text-text-primary font-rajdhani">
-      {/* === Sidebar === */}
-      <aside className="w-56 bg-background-sidebar flex flex-col justify-between p-5">
-        <div>
-          <h1 className="text-text-accent font-bold text-xl mb-1">EXO-ONE</h1>
-          <p className="text-xs text-text-secondary">Système Phaos - Sol 45</p>
+    <div className="flex h-screen w-screen bg-background-main text-text-primary font-rajdhani overflow-hidden">
+      {/* Sidebar */}
+      <Sidebar
+        gameTime={gameState.gameTime}
+        morale={gameState.morale}
+        isPaused={isPaused}
+        onTogglePause={() => setIsPaused(!isPaused)}
+        onReset={handleReset}
+      />
 
-          <nav className="flex flex-col gap-2 mt-5">
-            {["Base", "Recherche", "Colons", "Missions", "Carte"].map(
-              (item, i) => (
-                <button
-                  key={i}
-                  className={`text-left text-[15px] py-2 px-3 rounded-md transition ${
-                    item === "Base"
-                      ? "bg-sidebar-active text-white"
-                      : "text-text-secondary hover:bg-text-accent hover:text-white"
-                  }`}
-                >
-                  {item}
-                </button>
-              )
-            )}
-          </nav>
-        </div>
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col p-4 bg-background-main relative">
+        <ResourcePanel resources={gameState.resources} resourceDelta={resourceDelta} />
 
-        <div className="text-sm text-text-secondary cursor-pointer">
-          Paramètres
-        </div>
-      </aside>
+        <GameGrid
+          buildings={gameState.buildings}
+          onPlaceBuilding={handlePlaceBuilding}
+          onSelectBuilding={handleSelectBuildingOnGrid}
+          selectedBuildingId={selectedBuildingId}
+          selectedBuildingType={selectedBuildingType}
+        />
 
-      {/* === Main Content === */}
-      <main className="flex-1 flex flex-col p-4 bg-background-main">
-        {/* Resource bar */}
-        <div className="flex justify-between gap-2 mb-4">
-          {[
-            ["⚡ Énergie", colors.resources.energy],
-            ["⛏ Minéraux", colors.resources.minerals],
-            ["💧 Eau", colors.resources.water],
-            ["🌬 Oxygène", colors.resources.oxygen],
-            ["🌿 Nourriture", colors.resources.food],
-          ].map(([label, color], i) => (
-            <div
-              key={i}
-              className="flex-1 text-center py-2 rounded-md border border-background-grid font-semibold"
-              style={{ backgroundColor: colors.background.panel, color }}
-            >
-              {label}
+        {/* Building Info Panel */}
+        <BuildingInfoPanel
+          building={selectedBuilding}
+          onUpgrade={handleUpgrade}
+          onToggle={handleToggle}
+          onRemove={handleRemove}
+        />
+
+        {/* Pause overlay */}
+        {isPaused && (
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-background-panel p-8 rounded-lg border border-text-accent">
+              <h2 className="text-3xl text-text-accent font-bold mb-4">⏸️ PAUSE</h2>
+              <p className="text-text-secondary">Le jeu est en pause</p>
             </div>
-          ))}
-        </div>
-
-        {/* Grid zone */}
-        <div
-          className="flex-1 rounded-lg border border-background-grid"
-          style={{
-            backgroundColor: colors.background.panel,
-            backgroundImage: `
-              linear-gradient(${colors.background.grid} 1px, transparent 1px),
-              linear-gradient(90deg, ${colors.background.grid} 1px, transparent 1px)
-            `,
-            backgroundSize: "40px 40px",
-          }}
-        ></div>
+          </div>
+        )}
       </main>
 
-      {/* === Right panel === */}
-      <aside className="w-64 bg-background-panel p-5 flex flex-col gap-3">
-        <h2 className="text-text-accent font-semibold text-lg">
-          + Construction
-        </h2>
-        {[
-          "Panneau solaire",
-          "Foreuse minière",
-          "Extracteur d’eau",
-          "Serre",
-          "Habitat",
-          "Laboratoire",
-        ].map((item, i) => (
-          <div
-            key={i}
-            className="bg-background-sidebar border border-background-grid rounded-lg px-4 py-3 cursor-pointer hover:bg-text-accent hover:text-white transition"
-          >
-            {item}
-          </div>
-        ))}
-      </aside>
+      {/* Build Menu */}
+      <BuildMenu
+        resources={gameState.resources}
+        onSelectBuilding={handleSelectBuildingFromMenu}
+        selectedBuildingType={selectedBuildingType}
+      />
     </div>
   );
 };
