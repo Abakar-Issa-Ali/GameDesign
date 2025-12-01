@@ -27,10 +27,10 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const menuItems = [
-    { name: 'Base', icon: '🏗️', path: "/" },
-    { name: 'Recherche', icon: '🔬' },
-    { name: 'Colons', icon: '👥' },
-    { name: 'Missions', icon: '📋' },
+    { name: 'Base', icon: '🗏️', path: "/" },
+    { name: 'Recherche', icon: '🔬', path: "/research" },
+    { name: 'Colons', icon: '👥', path: "/colonists" },
+    { name: 'Missions', icon: '📋', path: "/missions" },
     { name: 'Carte', icon: '🗺️', path: "/map" },
   ];
 
@@ -71,12 +71,12 @@ const Sidebar: React.FC<SidebarProps> = ({
         {/* ===== NAVIGATION ===== */}
         <nav className="flex flex-col gap-2 mt-5">
           {menuItems.map((item) => {
-            const isActive = item.path && location.pathname === item.path;
+            const isActive = location.pathname === item.path;
 
             return (
               <button
                 key={item.name}
-                onClick={() => item.path && navigate(item.path)}
+                onClick={() => navigate(item.path)}
                 className={`text-left text-[15px] py-2 px-3 rounded-md transition flex items-center gap-2 ${
                   isActive
                     ? 'bg-sidebar-active text-white'
@@ -115,7 +115,6 @@ const Sidebar: React.FC<SidebarProps> = ({
       {/* ===== FOOTER ===== */}
       <div className="text-sm text-text-secondary">
         <div className="mb-2">💾 Sauvegarde auto</div>
-        <div className="text-xs">Version 1.0.0</div>
       </div>
 
     </aside>
